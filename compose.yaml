@@ -1,0 +1,29 @@
+services:
+  router:
+    build: ./Router
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  order-manager:
+    build: ./OrderManager
+    restart: unless-stopped
+
+  instrument-manager:
+    build: ./InstrumentManager
+    restart: unless-stopped
+  chart-loader:
+    build: ./ChartLoader
+    restart: unless-stopped
+
+  frontend:
+    build: ./Frontend
+    ports:
+      - "8082:8082"
+    restart: unless-stopped
+
+  redis-db:
+    image: redis:latest
+    volumes:
+      - ./redisdata:/data
+    restart: unless-stopped
