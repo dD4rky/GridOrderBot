@@ -1,26 +1,25 @@
 import fastapi
-from fastapi.middleware.cors import CORSMiddleware
+# from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
 
 import requests
 
 import redis
+import json
 
 app = fastapi.FastAPI(debug = True)
 
-origins = [
-    "http://176.112.66.214:8082"
-]
+with open("./config.json", "r") as f:
+    origins = json.load(f)["origins"]
 
-# Добавляем CORS Middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=origins,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"]
+# )
 
 class RouterPlaceOrderRequest(BaseModel):
     figi : str
@@ -29,27 +28,16 @@ class RouterPlaceOrderRequest(BaseModel):
     steps : int
     price_step : float
 
-class OrderManagerPlaceOrderRequest(BaseModel):
-    token : str
-    account_id : str
-    figi : str
-    start_price : float
-    q_per_step : int
-    steps : int
-    step : float
-
-
 @app.get("/")
 def root():
     return {"success": "true"}
 
 @app.post("/place_orders")
 def place_order(msg : RouterPlaceOrderRequest):
-    # get token from db
     r = redis.Redis(host='redis-db', port=6379, decode_responses=True)
     token = r.get('token')
     account_id = r.get('account_id')
-    # generate request
+
     request_data = {
         "token" : token,
         "account_id" : account_id,
@@ -68,7 +56,6 @@ def place_order(msg : RouterPlaceOrderRequest):
 
 @app.get("/get_instruments")
 def get_instruments(query : str):
-    # get token from db
     r = redis.Redis(host='redis-db', port=6379, decode_responses=True)
     token = r.get('token')
 
@@ -83,7 +70,6 @@ def get_instruments(query : str):
 
 @app.get("/get_instrument")
 def get_instrument(figi : str):
-    # get token from db
     r = redis.Redis(host='redis-db', port=6379, decode_responses=True)
     token = r.get('token')
 

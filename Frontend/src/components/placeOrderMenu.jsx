@@ -37,7 +37,7 @@ function PlaceOrderMenu(instrument) {
 		});
 		if (formData.figi != null) {
 			axios
-				.post("http://176.112.66.214:4040/place_orders", formData)
+				.post(`${window.location.origin}/router/place_orders`, formData)
 				// .then((response) => {
 				// 	console.log(response);
 				// });

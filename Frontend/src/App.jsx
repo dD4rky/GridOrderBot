@@ -25,8 +25,9 @@ function App(props) {
 
 	useEffect(() => {
 		if (!selectedInstrument.length) return;
+		console.log(`${window.location.origin}/router/get_instrument`);
 		axios
-			.get("http://176.112.66.214:4040/get_instrument", {
+			.get(`${window.location.origin}/router/get_instrument`, {
 				params: { figi: selectedInstrument },
 			})
 			.then((response) => {
@@ -34,7 +35,7 @@ function App(props) {
 					response.data ? response.data.instrument : null
 				);
 				axios
-					.get("http://176.112.66.214:4040/get_candlestick_data", {
+					.get(`${window.location.origin}/router/get_candlestick_data`, {
 						params: {
 							figi: selectedInstrument,
 							timeframe: "m5",

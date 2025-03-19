@@ -18,7 +18,7 @@ function SearchBar() {
 			setVisibility(true);
 		}
 		axios
-			.get("http://176.112.66.214:4040/get_instruments", {
+			.get(`${window.location.origin}/router/get_instruments`, {
 				params: {
 					query: event.target.value,
 				},

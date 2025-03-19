@@ -1,8 +1,6 @@
 services:
   router:
     build: ./Router
-    ports:
-      - "8080:8080"
     restart: unless-stopped
 
   order-manager:
@@ -18,12 +16,19 @@ services:
 
   frontend:
     build: ./Frontend
-    ports:
-      - "8082:8082"
     restart: unless-stopped
 
   redis-db:
     image: redis:latest
     volumes:
       - ./redisdata:/data
+    restart: unless-stopped
+
+  nginx:
+    build: ./Nginx
+    ports: 
+      - "80:80"
+    depends_on:
+      - router
+      - frontend
     restart: unless-stopped
