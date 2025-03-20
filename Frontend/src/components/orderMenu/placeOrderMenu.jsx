@@ -1,6 +1,6 @@
-import quotationToFloat from "../utils";
+import quotationToFloat from "../../utils";
 import { useContext } from "react";
-import { AppContext } from "../App";
+import { AppContext } from "../../App";
 import "./placeOrderMenu.css";
 
 import axios from "axios";
@@ -30,31 +30,35 @@ function PlaceOrderMenu(instrument) {
 	};
 
 	const handleSubmit = (event) => {
-		event.preventDefault(); 
+		event.preventDefault();
 		setFormData({
 			...formData,
 			figi: instrument?.instrument?.figi || null,
 		});
 		if (formData.figi != null) {
-			axios
-				.post(`${window.location.origin}/router/place_orders`, formData)
-				// .then((response) => {
-				// 	console.log(response);
-				// });
+			axios.post(
+				`${window.location.origin}/router/place_orders`,
+				formData
+			);
+			// .then((response) => {
+			// 	console.log(response);
+			// });
 		}
 	};
 
 	const minPriceIncrement =
 		quotationToFloat(instrument?.instrument?.min_price_increment) || 0.1;
+	const name = instrument?.instrument?.name || "None";
 	const figi = instrument?.instrument?.figi || "None";
 	const ticker = instrument?.instrument?.ticker || "None";
 
 	return (
 		<>
 			<div className="placeOrderMenu">
-				<h1>
-					{ticker} ({figi})
-				</h1>
+				<div className="blockLabel">
+					<h2>{name}</h2>
+					<h3>{ticker}</h3>
+				</div>
 				<form className="orderMenuForm" onSubmit={handleSubmit}>
 					<Input
 						label="Начальная цена"
@@ -85,7 +89,7 @@ function PlaceOrderMenu(instrument) {
 						keyName="price_step"
 					/>
 					<button className="submitButton" type="submit">
-						Submit
+						Подтвердить
 					</button>
 				</form>
 			</div>

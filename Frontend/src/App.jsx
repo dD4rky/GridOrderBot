@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 
 import Header from "./components/header";
-import PlaceOrderMenu from "./components/placeOrderMenu";
+import PlaceOrderMenu from "./components/orderMenu/placeOrderMenu";
+import OrderList from "./components/orderMenu/orderList";
 
 import ChartComponent from "./components/chart";
 
@@ -25,7 +26,6 @@ function App(props) {
 
 	useEffect(() => {
 		if (!selectedInstrument.length) return;
-		console.log(`${window.location.origin}/router/get_instrument`);
 		axios
 			.get(`${window.location.origin}/router/get_instrument`, {
 				params: { figi: selectedInstrument },
@@ -56,9 +56,12 @@ function App(props) {
 				<AppContext.Provider value={{ formData }}>
 					<ChartComponent {...props} data={chartData} />
 				</AppContext.Provider>
-				<AppContext.Provider value={{ formData, setFormData }}>
-					<PlaceOrderMenu instrument={selectedInstrumentData} />
-				</AppContext.Provider>
+				<div className="order-bar">
+					<AppContext.Provider value={{ formData, setFormData }}>
+						<PlaceOrderMenu instrument={selectedInstrumentData} />
+					</AppContext.Provider>
+					<OrderList/>
+				</div>
 			</div>
 		</>
 	);

@@ -14,10 +14,14 @@
 }
 * {
   z-index: 1;
+  margin: 0;
 }
 body {
   padding: 0px;
   margin: 0px;
+}
+h3 {
+  color: #666666;
 }
 .hidden {
   visibility: hidden;

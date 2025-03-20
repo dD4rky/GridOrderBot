@@ -1,13 +1,14 @@
 .placeOrderMenu {
-    width: 30%;
+    width: 100%;
     place-items: center;
+    border-bottom: 1px solid #666666;
 }
-
 .orderMenuForm {
     display: grid;
     grid-template-columns: 2fr 1fr;
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
     grid-column-gap: 10px;
+    grid-row-gap: 10px;
     place-items: center;
     width: 80%;
 }
@@ -20,6 +21,9 @@
 }
 .formInputLabel {
     margin: 0;
+    text-align: start;
+    place-self: start;
+    align-self: start;
 }
 .submitButton {
     grid-column-start: 1;

@@ -3,4 +3,13 @@ header {
     width: 100vw;
     border-bottom: 1px inset #666666;
     place-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+.logo {
+    margin: 0px 10px;
+    text-align: start;
+}
+.logo_smile {
+    color: #ff00c8;
 }

@@ -96,3 +96,18 @@ def get_candlestick_data(figi : str, timeframe : str):
 
     r.close()
     return response.json()
+
+@app.get("/get_orders")
+def get_orders():
+    r = redis.Redis(host='redis-db', port=6379, decode_responses=True)
+    token = r.get('token')
+    account_id = r.get('account_id')
+
+    request_data = {
+        "token" : token,
+        "account_id" : account_id
+    }
+    response = requests.get('http://order-manager:8081/get_orders', params=request_data)
+
+    r.close()
+    return response.json()
