@@ -1,5 +1,5 @@
 import quotationToFloat from "../../utils";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AppContext } from "../../App";
 import "./placeOrderMenu.css";
 
@@ -31,10 +31,7 @@ function PlaceOrderMenu(instrument) {
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
-		setFormData({
-			...formData,
-			figi: instrument?.instrument?.figi || null,
-		});
+		console.log(formData);
 		if (formData.figi != null) {
 			axios.post(
 				`${window.location.origin}/router/place_orders`,
@@ -45,6 +42,13 @@ function PlaceOrderMenu(instrument) {
 			// });
 		}
 	};
+	useEffect(() => {
+		setFormData({
+			...formData,
+			figi: instrument?.instrument?.figi || null,
+		});
+	}, [instrument])
+
 
 	const minPriceIncrement =
 		quotationToFloat(instrument?.instrument?.min_price_increment) || 0.1;

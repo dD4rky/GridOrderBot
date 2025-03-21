@@ -3,12 +3,16 @@
   text-align: center;
 }
 .workflow {
-  min-height: calc(100vh - 61px);
+  height: calc(100vh - 61px);
   width: 100%;
   display: flex;
 }
-.order-bar {
+.orderBar {
+  height: calc(100vh - 61px);
   width: 30%;
+  overflow: auto;
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 .blockLabel {
   display: flex;
@@ -18,4 +22,7 @@
   margin: 5px 0px;
   padding: 5px 0px;
   border-bottom: 1px dashed #555555;
+}
+.blockLabel h2, .blockLabel h3 {
+  text-align: start;
 }

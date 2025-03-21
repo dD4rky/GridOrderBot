@@ -56,7 +56,7 @@ function App(props) {
 				<AppContext.Provider value={{ formData }}>
 					<ChartComponent {...props} data={chartData} />
 				</AppContext.Provider>
-				<div className="order-bar">
+				<div className="orderBar">
 					<AppContext.Provider value={{ formData, setFormData }}>
 						<PlaceOrderMenu instrument={selectedInstrumentData} />
 					</AppContext.Provider>

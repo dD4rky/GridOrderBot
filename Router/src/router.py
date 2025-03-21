@@ -10,8 +10,8 @@ import json
 
 app = fastapi.FastAPI(debug = True)
 
-with open("./config.json", "r") as f:
-    origins = json.load(f)["origins"]
+# with open("./config.json", "r") as f:
+#     origins = json.load(f)["origins"]
 
 # app.add_middleware(
 #     CORSMiddleware,
@@ -57,6 +57,11 @@ def place_order(msg : RouterPlaceOrderRequest):
 @app.get("/get_instruments")
 def get_instruments(query : str):
     r = redis.Redis(host='redis-db', port=6379, decode_responses=True)
+
+    cached = r.get(f'cache/get_instruments/{query}')
+    if cached != None:
+        return json.loads(cached)
+
     token = r.get('token')
 
     request_data = {
@@ -64,13 +69,21 @@ def get_instruments(query : str):
         "token" : token
     }
     response = requests.get('http://instrument-manager:8083/get_instruments', params=request_data)
+    data = json.dumps(response.json())
+
+    r.set(f'cache/get_instruments/{query}', data, ex=60*60)
 
     r.close()
-    return response.json()
+    return json.loads(data)
 
 @app.get("/get_instrument")
 def get_instrument(figi : str):
     r = redis.Redis(host='redis-db', port=6379, decode_responses=True)
+
+    cached = r.get(f'cache/get_instrument/{figi}')
+    if cached != None:
+        return json.loads(cached)
+    
     token = r.get('token')
 
     request_data = {
@@ -78,13 +91,21 @@ def get_instrument(figi : str):
         "token" : token
     }
     response = requests.get('http://instrument-manager:8083/get_instrument', params=request_data)
+    data = json.dumps(response.json())
+
+    r.set(f'cache/get_instrument/{figi}', data, ex=60*60)
 
     r.close()
-    return response.json()
+    return json.loads(data)
 
 @app.get("/get_candlestick_data")
 def get_candlestick_data(figi : str, timeframe : str):
     r = redis.Redis(host='redis-db', port=6379, decode_responses=True)
+
+    cached = r.get(f'cache/get_candlestick_data/{figi}-{timeframe}')
+    if cached != None:
+        return json.loads(cached)
+
     token = r.get('token')
 
     request_data = {
@@ -93,9 +114,13 @@ def get_candlestick_data(figi : str, timeframe : str):
         "token" : token
     }
     response = requests.get('http://chart-loader:8084/get_candlestick_data', params=request_data)
+    data = json.dumps(response.json())
+
+    r.set(f'cache/get_candlestick_data/{figi}-{timeframe}', data, ex=60)
 
     r.close()
-    return response.json()
+    return json.loads(data)
+
 
 @app.get("/get_orders")
 def get_orders():

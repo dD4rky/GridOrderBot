@@ -1,0 +1,30 @@
+.orderItem {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    align-items: center;
+    border-bottom: 1px dotted #666666;
+}
+h2.orderItemName {
+    font-size: 14px;
+    text-align: start;
+}
+h3.orderItemTicker {
+    font-size: 12px;
+    grid-row-start: 2;
+    text-align: start;
+}
+.orderItem p {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.orderItemLabel {
+    text-align: start;
+    color:#666666;
+}
+.orderItemData {
+    text-align: end;
+    color: white;
+}
