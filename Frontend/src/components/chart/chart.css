@@ -1,0 +1,5 @@
+.chart {
+    height: 100%;
+    width: 70%;
+    border-right: 1px solid var(--secondary-color);
+}

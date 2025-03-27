@@ -31,15 +31,11 @@ function PlaceOrderMenu(instrument) {
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
-		console.log(formData);
 		if (formData.figi != null) {
 			axios.post(
 				`${window.location.origin}/router/place_orders`,
 				formData
 			);
-			// .then((response) => {
-			// 	console.log(response);
-			// });
 		}
 	};
 	useEffect(() => {
@@ -53,7 +49,6 @@ function PlaceOrderMenu(instrument) {
 	const minPriceIncrement =
 		quotationToFloat(instrument?.instrument?.min_price_increment) || 0.1;
 	const name = instrument?.instrument?.name || "None";
-	const figi = instrument?.instrument?.figi || "None";
 	const ticker = instrument?.instrument?.ticker || "None";
 
 	return (

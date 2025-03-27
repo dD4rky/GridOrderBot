@@ -51,8 +51,7 @@ def place_order(msg : RouterPlaceOrderRequest):
     response = requests.post('http://order-manager:8081/place_orders', json=request_data)
 
     r.close()
-    print(response)
-    return True
+    return response.json()
 
 @app.get("/get_instruments")
 def get_instruments(query : str):
@@ -121,6 +120,20 @@ def get_candlestick_data(figi : str, timeframe : str):
     r.close()
     return json.loads(data)
 
+@app.get("/get_levels")
+def get_support_levels(figi : str, timeframe: str):
+    r = redis.Redis(host='redis-db', port=6379, decode_responses=True)
+    token = r.get('token')
+
+    request_data = {
+        "figi" : figi,
+        "timeframe" : timeframe,
+        "token" : token
+    }
+
+    response = requests.get('http://chart-loader:8084/get_levels', params=request_data)
+
+    return response.json()
 
 @app.get("/get_orders")
 def get_orders():

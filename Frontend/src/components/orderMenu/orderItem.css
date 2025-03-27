@@ -4,7 +4,7 @@
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
     align-items: center;
-    border-bottom: 1px dotted #666666;
+    border-bottom: 1px dotted var(--secondary-color);
 }
 h2.orderItemName {
     font-size: 14px;
@@ -22,7 +22,7 @@ h3.orderItemTicker {
 }
 .orderItemLabel {
     text-align: start;
-    color:#666666;
+    color:var(--secondary-color);
 }
 .orderItemData {
     text-align: end;

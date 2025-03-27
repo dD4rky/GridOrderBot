@@ -1,50 +1,86 @@
-import fastapi
-from tinkoff.invest import Client
-from tinkoff.invest import Quotation, CandleInterval
-from tinkoff.invest.constants import INVEST_GRPC_API
-
-from datetime import datetime, timedelta
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends
+from pydantic import BaseModel
+from typing import Dict, Set, Optional
 import json
+import asyncio
 
-app = fastapi.FastAPI(debug=True)
+app = FastAPI()
 
-def quotation_to_float(quotation : Quotation):
-    return quotation.units + quotation.nano / 1e9
+# Модель для хранения активных подписок
+class SubscriptionManager:
+    def __init__(self):
+        self.active_connections: Dict[WebSocket, Set[str]] = {}
+        self.lock = asyncio.Lock()
 
-def get_json(obj):
-    return json.loads(
-        json.dumps(obj, default=lambda o: getattr(o, '__dict__', str(o)))
-    )
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        async with self.lock:
+            self.active_connections[websocket] = set()
 
-def get_timeframe(str_tf):
-    TFS = {
-        "m5" : {"tf" : CandleInterval.CANDLE_INTERVAL_5_MIN,
-                "td" : timedelta(minutes=5)},
-        "h1" : {"tf" : CandleInterval.CANDLE_INTERVAL_HOUR,
-                "td" : timedelta(hours=1)},
-        "h4" : {"tf" : CandleInterval.CANDLE_INTERVAL_4_HOUR,
-                "td" : timedelta(hours=4)},
-        "d1" : {"tf" : CandleInterval.CANDLE_INTERVAL_DAY,
-                "td" : timedelta(days=1)}
-        }
-    return TFS[str_tf]["tf"], TFS[str_tf]["td"]
+    def disconnect(self, websocket: WebSocket):
+        async with self.lock:
+            if websocket in self.active_connections:
+                del self.active_connections[websocket]
 
-@app.get("/get_candlestick_data")
-def get_instrument(token : str, figi : str, timeframe : str):
-    tf, td = get_timeframe(str_tf=timeframe)
-    data = []
-    with Client(token, target = INVEST_GRPC_API) as client:
-        candles = client.get_all_candles(figi=figi, 
-                               interval=tf,
-                               to=datetime.now(),
-                               from_=datetime.now() - td * 2000)
-        for candle in candles:
-            candle_data = {
-                "open" : quotation_to_float(candle.open),
-                "high" : quotation_to_float(candle.high),
-                "low" : quotation_to_float(candle.low),
-                "close" : quotation_to_float(candle.close),
-                "time" : int(candle.time.timestamp())
-            }
-            data.append(candle_data)
-    return data
+    async def add_subscription(self, websocket: WebSocket, figi: str):
+        async with self.lock:
+            if websocket in self.active_connections:
+                self.active_connections[websocket].add(figi)
+
+    async def remove_subscription(self, websocket: WebSocket, figi: str):
+        async with self.lock:
+            if websocket in self.active_connections and figi in self.active_connections[websocket]:
+                self.active_connections[websocket].remove(figi)
+
+    async def broadcast(self, figi: str, data: dict):
+        async with self.lock:
+            for websocket, subscriptions in self.active_connections.items():
+                if figi in subscriptions:
+                    await websocket.send_json({
+                        "figi": figi,
+                        "data": data
+                    })
+
+manager = SubscriptionManager()
+
+# Модели данных
+class InstrumentData(BaseModel):
+    figi: str
+    price: float
+    volume: int
+
+class SubscriptionRequest(BaseModel):
+    action: str  # "subscribe" или "unsubscribe"
+    figi: str
+
+# WebSocket endpoint для управления подписками
+@app.websocket("/ws/subscriptions")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            raw_data = await websocket.receive_text()
+            try:
+                data = json.loads(raw_data)
+                request = SubscriptionRequest(**data)
+                
+                if request.action == "subscribe":
+                    await manager.add_subscription(websocket, request.figi)
+                elif request.action == "unsubscribe":
+                    await manager.remove_subscription(websocket, request.figi)
+                
+                await websocket.send_json({"status": "success", "figi": request.figi})
+                
+            except Exception as e:
+                await websocket.send_json({"status": "error", "message": str(e)})
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
+# HTTP endpoint для получения данных
+@app.post("/publish")
+async def publish_data(data: InstrumentData):
+    await manager.broadcast(data.figi, {
+        "price": data.price,
+        "volume": data.volume
+    })
+    return {"status": "data broadcasted"}

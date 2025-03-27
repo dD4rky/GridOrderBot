@@ -1,7 +1,7 @@
 header {
     height: 60px;
     width: 100vw;
-    border-bottom: 1px inset #666666;
+    border-bottom: 1px inset var(--secondary-color);
     place-content: center;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -11,5 +11,5 @@ header {
     text-align: start;
 }
 .logo_smile {
-    color: #e34da7;
+    color: var(--accent-color);
 }

@@ -1,7 +1,7 @@
 .placeOrderMenu {
     width: 100%;
     place-items: center;
-    border-bottom: 1px solid #666666;
+    border-bottom: 1px solid var(--secondary-color);
 }
 .orderMenuForm {
     display: grid;
@@ -15,7 +15,7 @@
 .formInput {
     height: 45px;
     border-radius: 10px;
-    border: 1px solid #666666;
+    border: 1px solid var(--secondary-color);
     text-align: center;
     font-size: 20px;
 }
@@ -32,7 +32,7 @@
     width: 50%;
     height: 45px;
     border-radius: 10px;
-    border: 1px solid #666666;
+    border: 1px solid var(--secondary-color);
 
     background-color: #121212;
 }
@@ -40,5 +40,5 @@
     border-color: white;
 }
 .submitButton:active {
-    background-color: #666666;
+    background-color: var(--secondary-color);
 }

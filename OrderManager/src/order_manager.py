@@ -30,6 +30,9 @@ app = fastapi.FastAPI(debug=True)
 
 @app.post("/place_orders")
 def place_orders(msg : PlaceOrderRequest):
+
+    orders = {"orders": []}
+
     with Client(msg.token, target = INVEST_GRPC_API) as client:
         price = msg.start_price
         for step_ in range(msg.steps):
@@ -39,10 +42,10 @@ def place_orders(msg : PlaceOrderRequest):
                                     price=float_to_quotation(price),
                                     direction=OrderDirection.ORDER_DIRECTION_BUY,
                                     order_type=OrderType.ORDER_TYPE_LIMIT)
-            print(order)
+            orders["orders"].append(get_json(order))
             price -= msg.price_step
 
-    return "True"
+    return orders
 
 @app.get("/get_orders")
 def place_orders(token : str, account_id : str):

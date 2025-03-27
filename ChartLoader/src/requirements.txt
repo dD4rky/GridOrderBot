@@ -1,3 +1,5 @@
 fastapi
 uvicorn
 tinkoff-investments
+numpy
+scipy
